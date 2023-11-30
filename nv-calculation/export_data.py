@@ -1,6 +1,10 @@
 from connection import client, gspread
 import pandas as pd
+from enum import Enum
 
+class Sheet_type(Enum):
+    Storage = 1
+    Calculation = 2
 
 calc_sheet_name = 'Copy of NV - Calculation'
 storage_sheet_name = 'Copy of Nile Valley - Game Config [Development]-Main'

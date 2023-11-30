@@ -1,4 +1,5 @@
 from item import Item, Item_type, Countble_item_source, Recipe_rarity
+import global_p
 from map_obj import Resource_obj
 import json
 
@@ -29,6 +30,15 @@ class Countble_item(Item):
         return
 
     def calculate_item_data(self):
+        self.calculate_item_total_time(self.recipe.lvl)
+        self.calculate_item_total_energy()
+        self.calculate_item_total_energy_return()
+        self.calculate_item_total_exp()
+
+        if (self.total_time/60 + self.total_energy_cost*0.5)/6 <= 1:
+            self.cost_hard = 1
+        else:
+            self.cost_hard = (self.total_time/60 + self.total_energy_cost*0.5)/6
         return
     
     def calculate_item_total_time(self, level = 0):
@@ -69,6 +79,7 @@ class Countble_item(Item):
     def reset_prod_order(self):
         self.production_sort = self.recipe.recipe_depth()*1000000 + self.i_id
 
+
 class Requirement:
 
     def __init__(self, counble_item: Countble_item, count: int):
@@ -85,6 +96,7 @@ class Recipe:
             self.source = Countble_item_source.Default
             return
         self.time = time
+        self.acceleration_cost = global_p.acc.time_to_cost(self.time)
         self.r_yeild = r_yield
         self.source = item.source
         self.lvl = req_lvl
