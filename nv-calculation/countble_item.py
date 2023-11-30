@@ -45,11 +45,20 @@ class Countble_item(Item):
         return time
     
     def calculate_item_total_energy(self):
-        if self.source == Countble_item_source.Enviroment: return self.gathering_energy
+        if self.source == Countble_item_source.Enviroment: 
+            self.total_energy_cost = self.gathering_energy
+            return self.gathering_energy
 
-        return self.recipe.calculate_recipe_energy_cost()
+        self.total_energy_cost = self.recipe.calculate_recipe_energy_cost()
+        return self.total_energy_cost
+    
+    def calculate_item_total_energy_return(self):
+        if self.source == Countble_item_source.Enviroment: 
+            self.total_energy_return = self.return_energy
+            return self.return_energy
 
-
+        self.total_energy_return = self.recipe.calculate_recipe_energy_return()
+        return self.total_energy_return
 
     def reset_prod_order(self):
         self.production_sort = self.recipe.recipe_depth()*1000000 + self.i_id
@@ -180,6 +189,21 @@ class Recipe:
         if self.source == Countble_item_source.Animals:
             for req in self.recipe_req:
                 energy += req.animal.food.calculate_item_total_energy() * req.count
+            return energy
+        
+        return energy
+    
+    def calculate_recipe_energy_return(self):
+        if not self.source in [Countble_item_source.Production, Countble_item_source.Animals]: return 0
+        energy = 0
+
+        if self.source == Countble_item_source.Production:
+            for req in self.recipe_req:
+                energy += req.counble_item.calculate_item_total_energy_return() * req.count
+            return energy
+        if self.source == Countble_item_source.Animals:
+            for req in self.recipe_req:
+                energy += req.animal.food.calculate_item_total_energy_return() * req.count
             return energy
         
         return energy
