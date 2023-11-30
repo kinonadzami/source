@@ -1,4 +1,4 @@
-from item import Item, Item_type, Countble_item_source
+from item import Item, Item_type, Countble_item_source, Recipe_rarity
 from map_obj import Resource_obj
 import json
 
@@ -25,6 +25,7 @@ class Countble_item(Item):
         self.sources.sort(key=lambda x: x.one_item_energy_cost)
         self.gathering_energy = self.sources[0].one_item_energy_cost
         self.return_energy = self.sources[0].one_item_energy_return
+        self.gathering_exp = self.sources[0].one_item_exp
         return
 
     def calculate_item_data(self):
@@ -32,13 +33,10 @@ class Countble_item(Item):
     
     def calculate_item_total_time(self, level = 0):
         if self.recipe.source == Countble_item_source.Default: return
-
         if level == 0: level = self.recipe.lvl
 
         time = 0
-
         time += self.recipe.calculate_recipe_time(level)
-
         time += self.recipe.calculate_req_total_time(level)
 
         self.total_time = time
@@ -59,6 +57,14 @@ class Countble_item(Item):
 
         self.total_energy_return = self.recipe.calculate_recipe_energy_return()
         return self.total_energy_return
+    
+    def calculate_item_total_exp(self):
+        if self.source == Countble_item_source.Enviroment: 
+            self.total_exp = self.gathering_exp
+            return self.gathering_exp
+        
+        self.total_exp = self.recipe.calculate_recipe_exp()
+        return self.total_exp
 
     def reset_prod_order(self):
         self.production_sort = self.recipe.recipe_depth()*1000000 + self.i_id
@@ -74,7 +80,7 @@ class Requirement:
     
 class Recipe:
 
-    def __init__(self, item: Countble_item, requirements = [], time = 0, r_yield = 1, req_lvl = 1):
+    def __init__(self, item: Countble_item, requirements = [], time = 0, r_yield = 1, req_lvl = 1, rarity = Recipe_rarity.Common):
         if item == None: 
             self.source = Countble_item_source.Default
             return
@@ -82,6 +88,7 @@ class Recipe:
         self.r_yeild = r_yield
         self.source = item.source
         self.lvl = req_lvl
+        self.rarity = rarity
         match self.source:
             case Countble_item_source.Production:
                 if len(requirements) == 0: raise Exception("Requirements empty, expect list<Requirement> " + self.item.name)
@@ -204,6 +211,21 @@ class Recipe:
         if self.source == Countble_item_source.Animals:
             for req in self.recipe_req:
                 energy += req.animal.food.calculate_item_total_energy_return() * req.count
+            return energy
+        
+        return energy
+    
+    def calculate_recipe_exp(self):
+        if not self.source in [Countble_item_source.Production, Countble_item_source.Animals]: return 0
+        energy = 0
+
+        if self.source == Countble_item_source.Production:
+            for req in self.recipe_req:
+                energy += req.counble_item.calculate_item_total_exp() * req.count
+            return energy
+        if self.source == Countble_item_source.Animals:
+            for req in self.recipe_req:
+                energy += req.animal.food.calculate_item_total_exp() * req.count
             return energy
         
         return energy

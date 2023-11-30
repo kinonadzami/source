@@ -32,6 +32,16 @@ class Map_obj_type(Enum):
 
     def __str__(self):
         return str(self.name)
+    
+class Recipe_rarity(Enum):
+    Common = 1
+    Uncommon = 2
+    Rare = 3
+    Epic = 5
+    Legend = 10
+
+    def __str__(self):
+        return str(self.name)
 
 
 class Item:
