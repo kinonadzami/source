@@ -31,6 +31,7 @@ class Countble_item(Item):
         return
 
     def calculate_item_data(self):
+        if self.recipe.source == Countble_item_source.Default: return
         self.calculate_item_total_time(self.recipe.lvl)
         self.calculate_item_total_energy()
         self.calculate_item_total_energy_return()
@@ -54,6 +55,7 @@ class Countble_item(Item):
         return time
     
     def calculate_item_total_energy(self):
+        if self.recipe.source == Countble_item_source.Default: return
         if self.source == Countble_item_source.Enviroment: 
             self.total_energy_cost = self.gathering_energy
             return self.gathering_energy
@@ -62,6 +64,7 @@ class Countble_item(Item):
         return self.total_energy_cost
     
     def calculate_item_total_energy_return(self):
+        if self.recipe.source == Countble_item_source.Default: return
         if self.source == Countble_item_source.Enviroment: 
             self.total_energy_return = self.return_energy
             return self.return_energy
@@ -70,6 +73,7 @@ class Countble_item(Item):
         return self.total_energy_return
     
     def calculate_item_total_exp(self):
+        if self.recipe.source == Countble_item_source.Default: return
         if self.source == Countble_item_source.Enviroment: 
             self.total_exp = self.gathering_exp
             return self.gathering_exp
@@ -78,6 +82,7 @@ class Countble_item(Item):
         return self.total_exp
 
     def reset_prod_order(self):
+        if self.recipe.source == Countble_item_source.Default: return
         self.production_sort = self.recipe.recipe_depth()*1000000 + self.i_id
 
 
@@ -92,7 +97,7 @@ class Requirement:
     
 class Recipe:
 
-    def __init__(self, item: Countble_item, requirements = [], time = 0, r_yield = 1, req_lvl = 1, rarity = Recipe_rarity.Common):
+    def __init__(self, item:Countble_item, requirements = [], time = 0, r_yield = 1, req_lvl = 1, rarity = Recipe_rarity.Common):
         if item == None: 
             self.source = Countble_item_source.Default
             return
@@ -110,9 +115,6 @@ class Recipe:
                 self.recipe_req = requirements
                 
                 if self.prod_rec_validator(item.id): raise Exception("Circular dependency in recipe " + self.item.name)
-            case Countble_item_source.Enviroment:
-                self.environment_sources = requirements
-                #yield and energy calc
             case Countble_item_source.Animals:
                 self.animals = requirements
                 #yield calc

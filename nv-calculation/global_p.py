@@ -1,6 +1,9 @@
 import export_data
 from enums import *
 
+exp_id = 2
+energy_id = 50
+
 acceleration_range = []
 
 class Acceleration_level:
