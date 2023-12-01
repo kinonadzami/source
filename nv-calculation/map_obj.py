@@ -1,4 +1,5 @@
 from item import Item
+from enums import *
 
 class Map_obj(Item):
 
