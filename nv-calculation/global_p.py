@@ -1,4 +1,5 @@
 import export_data
+from enums import *
 
 acceleration_range = []
 
