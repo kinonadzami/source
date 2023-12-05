@@ -32,6 +32,7 @@ class Map_obj_type(Enum):
         return str(self.name)
     
 class Recipe_rarity(Enum):
+    Default = 0
     Common = 1
     Uncommon = 2
     Rare = 3

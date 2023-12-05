@@ -93,33 +93,6 @@ class Countble_item(Item):
         if self.recipe.source == Countble_item_source.Default: return
         self.production_sort = self.recipe.recipe_depth()*1000000 + self.i_id
 
-    @staticmethod
-    def import_items_list_from_storage(extractor = storage_extractor):
-        df = pd.DataFrame()
-        
-        res = Storage_converter.resource_storage_import(extractor)
-        mat = Storage_converter.materials_storage_import(extractor)
-        crops = Storage_converter.crops_storage_import(extractor)
-        products = Storage_converter.products_storage_import(extractor)
-
-        for ind in res.index:
-            t = Countble_item(int(res['Id'][ind]), res['EN'][ind], res['type'][ind])
-            df = pd.concat([df, pd.DataFrame([t], index=[int(res['Id'][ind])], columns=['item'])])
-
-        for ind in mat.index:
-            t = Countble_item(int(mat['Id'][ind]), mat['EN'][ind], mat['type'][ind])
-            df = pd.concat([df, pd.DataFrame([t], index=[int(mat['Id'][ind])])])
-
-        for ind in crops.index:
-            t = Countble_item(int(crops['Id'][ind]), crops['EN'][ind], crops['type'][ind])
-            df = pd.concat([df, pd.DataFrame([t], index=[int(crops['Id'][ind])])])
-
-        for ind in products.index:
-            t = Countble_item(int(products['Id'][ind]), products['EN'][ind], products['type'][ind])
-            df = pd.concat([df, pd.DataFrame([t], index=[int(products['Id'][ind])])])
-
-        return df
-
 
 class Requirement:
 
@@ -163,7 +136,7 @@ class Recipe:
                 self.generating_obj = requirements
                 #yield calc
         
-        item.addRecipe(self)
+        item.add_recipe(self)
         self.item = item
 
     def __str__(self):

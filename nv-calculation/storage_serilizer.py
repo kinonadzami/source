@@ -98,6 +98,8 @@ class Storage_converter:
         df['ProductId'] = df['ProductionResult'].apply(lambda x: x.array[0][0])
         df['ProductYield'] = df['ProductionResult'].apply(lambda x: Storage_converter.get_item_avg_yield(x, int(x.array[0][0])))
 
+        df['UnlockLevel'] = df['UnlockLevel'].apply(lambda x: '1' if x == '-' else x)
+
         return df
     
     @staticmethod
