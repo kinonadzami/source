@@ -4,3 +4,6 @@ nv-calculation/__pycache__/countble_item.cpython-311.pyc
 nv-calculation/__pycache__/item.cpython-311.pyc
 nv-calculation/__pycache__/map_obj.cpython-311.pyc
 nv-calculation/__pycache__/export_data.cpython-311.pyc
+nv-calculation/__pycache__/resource_obj.cpython-311.pyc
+.gitignore
+nv-calculation/__pycache__/storage_serilizer.cpython-311.pyc

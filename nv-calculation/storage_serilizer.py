@@ -227,7 +227,3 @@ class Storage_converter:
         df['ProductYield'] = df['HarvestResult'].apply(lambda x:Storage_converter.get_item_avg_yield(x, int(x.array[0][0])))
 
         return df
-
-df = Storage_converter.trees_storage_import(storage_extractor)
-
-print(df.head())
