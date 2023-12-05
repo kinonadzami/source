@@ -12,13 +12,20 @@ class storage_array:
     def __str__(self):
         return Storage_converter.storage_format_from_array(self.array)
     
+    def remove_first_col(self):
+        new_arr = []
+        for x in self.array:
+            new_arr.append(x[1:])
+
+        self.array = new_arr
+        return self
+    
     @staticmethod
     def series_converter(ser:pd.Series):
         new = pd.Series()
         for index, x in ser.items():
             new = pd.concat([new, pd.Series(storage_array(x), index = [index])])
         
-        print(new)
         return new
 
 class Storage_converter:
@@ -42,7 +49,11 @@ class Storage_converter:
     
     @staticmethod
     def get_item_avg_yield(arr:storage_array, item_id):
-        arr = np.array(arr.array).astype(int)
+        try: 
+            arr = np.array(arr.array).astype(int)
+        except:
+            return 0
+        if arr.shape[1] == 0: return 0
         ret = 0
         for x in arr:
             if x[0] == item_id: 
@@ -52,7 +63,11 @@ class Storage_converter:
     
     @staticmethod
     def remove_extra_items(arr:storage_array, items_id:list):
-        temp = np.array(arr.array).astype(int)
+        try: 
+            temp = np.array(arr.array).astype(int)
+        except:
+            return 0
+        if temp.shape[1] == 0: return 0
         ret = []
         for x in temp:
             if not x[0] in items_id: 
@@ -61,6 +76,13 @@ class Storage_converter:
         ret = np.array(ret).astype(str)
         arr.array = ret.tolist()
         return arr
+    
+    @staticmethod 
+    def remove_pos_index(arr:list):
+        for x in arr:
+            del x[0]
+        return arr
+
     
     @staticmethod
     def production_recipe_storage_import(extractor:Extractor, worksheet = 'ProductionReceipts', range = 'J2:N'):
@@ -108,7 +130,29 @@ class Storage_converter:
         df['type'] = Countble_item_source.Production
 
         return df
+    
+    @staticmethod
+    def resMap_storage_import(extractor:Extractor, worksheet = 'ResourcesEnvironmentItems', range = 'A2:AH'):
+        df = extractor.extract_range(worksheet, range, True)
+        df = df[df['Id']!='']
+        df = df[['Id', 'Requirements', 'Rewards']]
 
-df = Storage_converter.products_storage_import(storage_extractor)
+        df = df[df['Requirements']!='-']
+        df = df[df['Rewards']!='-']
+
+        df['Requirements'] = storage_array.series_converter(df['Requirements'])
+        df['EnergyCost'] = df['Requirements'].apply(lambda x:Storage_converter.get_item_avg_yield(x, exp_id))
+        df['Rewards'] = storage_array.series_converter(df['Rewards'])
+        df['Rewards'] = df['Rewards'].apply(lambda x: x.remove_first_col())
+        df['EnergyReward'] = df['Rewards'].apply(lambda x:Storage_converter.get_item_avg_yield(x, energy_id))
+        df['ExpReward'] = df['Rewards'].apply(lambda x:Storage_converter.get_item_avg_yield(x, exp_id))
+
+        df['Rewards'] = df['Rewards'].apply(lambda x:Storage_converter.remove_extra_items(x, [exp_id, energy_id]))
+        df['ItemId'] = df['Rewards'].apply(lambda x: x.array[0][0])
+        df['ItemYield'] = df['Rewards'].apply(lambda x:Storage_converter.get_item_avg_yield(x, x.array[0][0]))
+
+        return df
+
+df = Storage_converter.resMap_storage_import(storage_extractor)
 
 print(df.head())
