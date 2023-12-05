@@ -3,7 +3,7 @@ from enums import *
 
 class Resource_obj(Map_obj):
 
-    def __init__(self, i_id: int, i_name: str, energy_cost:int, energy_return:int, resource:int, count:int, exp:int):
+    def __init__(self, i_id: int, i_name: str, energy_cost:int, energy_return:int, resource, count:int, exp:int):
         super().__init__(i_id, i_name)
         self.type = Item_type.Map_obj
         self.obj_type = Map_obj_type.Resource

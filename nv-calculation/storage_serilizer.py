@@ -138,7 +138,10 @@ class Storage_converter:
     def resMap_storage_import(extractor:Extractor, worksheet = 'ResourcesEnvironmentItems', range = 'A2:AH'):
         df = extractor.extract_range(worksheet, range, True)
         df = df[df['Id']!='']
-        df = df[['Id', 'Requirements', 'Rewards']]
+        temp = df['EN']
+        df = df.drop(['EN', 'EN'], axis=1)
+        df['EN'] = temp.iloc[:, 0]
+        df = df[['Id', 'EN', 'Requirements', 'Rewards']]
 
         df = df[df['Requirements']!='-']
         df = df[df['Rewards']!='-']

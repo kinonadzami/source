@@ -1,4 +1,5 @@
 from countble_item import *
+from resource_obj import *
 
 class storage_data:
 
@@ -6,7 +7,8 @@ class storage_data:
         self.extractor = extractor
 
         self.ci_df = storage_data.import_items_list_from_storage(self.extractor)
-        self.rec_df = storage_data.import_recipes_list_from_storage(self.ci_df)
+        self.rec_df = storage_data.import_recipes_list_from_storage(self.ci_df, self.extractor)
+        self.resMap_df = storage_data.import_resMap_list_from_storage(self.ci_df, self.extractor)
 
     @staticmethod
     def import_items_list_from_storage(extractor = storage_extractor):
@@ -55,6 +57,20 @@ class storage_data:
                     df = pd.concat([df, pd.DataFrame([t], index=[itemId], columns=['recipe'])])
 
         return df
+    
+    @staticmethod
+    def import_resMap_list_from_storage(ci_df, extractor = storage_extractor):
+        df = pd.DataFrame()
+
+        prod_sources = Storage_converter.resMap_storage_import(extractor)
+
+        for ind in prod_sources.index:
+            itemId = int(prod_sources['ItemId'][ind])
+            if itemId in ci_df.index: 
+                t = Resource_obj(prod_sources['Id'][ind], prod_sources['EN'][ind], int(prod_sources['EnergyCost'][ind]), int(prod_sources['EnergyReward'][ind]), ci_df['item'][itemId], int(prod_sources['ItemYield'][ind]), int(prod_sources['ExpReward'][ind]))
+                df = pd.concat([df, pd.DataFrame([t], index=[itemId], columns=['obj'])])
+
+        return df
         
     
     
@@ -63,5 +79,4 @@ st = storage_data()
 
 print(st.ci_df.head())
 print(st.rec_df.head())
-print(st.ci_df['item'][3000])
-print(st.ci_df['item'][3000].recipe)
+print(st.resMap_df.head())
