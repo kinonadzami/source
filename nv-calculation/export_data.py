@@ -24,3 +24,4 @@ class Extractor:
 
 calc_extractor = Extractor(calc_sheet_name)
 storage_extractor = Extractor(storage_sheet_name)
+
