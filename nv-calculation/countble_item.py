@@ -187,11 +187,11 @@ class Recipe:
                 return 0
             
             case Countble_item_source.Seedbeds:
-                return int(float(self.time)/float(self.r_yeild*self.seedbeds[level]))
+                return int(float(self.time)/float(self.r_yeild*self.seedbeds[level-1]))
             
             case Countble_item_source.Trees:
-                time = self.trees[level].tree.grow_time + (self.trees[level].tree.gather_time * self.trees[level].tree.gather_cycles)
-                t_yield = self.trees[level].tree.r_yield * self.trees[level].tree.gather_cycles * self.trees[level].count
+                time = self.trees[level-1].tree.grow_time + (self.trees[level-1].tree.gather_time * self.trees[level-1].tree.gather_cycles)
+                t_yield = self.trees[level-1].tree.r_yield * self.trees[level-1].tree.gather_cycles * self.trees[level-1].count
                 return int(float(time)/float(t_yield))      
                  
             case Countble_item_source.Generation:
@@ -201,7 +201,7 @@ class Recipe:
                 return int(1/avg_yield)             
                
             case Countble_item_source.Animals:
-                return int(float(self.time)/float(self.r_yeild*self.animals[level].count))
+                return int(float(self.time)/float(self.r_yeild*self.animals[level-1].count))
             
             case Countble_item_source.Production:
                 return int(float(self.time)/float(self.r_yeild))

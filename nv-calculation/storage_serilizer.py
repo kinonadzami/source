@@ -48,7 +48,7 @@ class Storage_converter:
         return array_string
     
     @staticmethod
-    def get_item_avg_yield(arr:storage_array, item_id):
+    def get_item_avg_yield(arr:storage_array, item_id, type_of_yield = 'prob'):
         try: 
             arr = np.array(arr.array).astype(int)
         except:
@@ -58,7 +58,8 @@ class Storage_converter:
         for x in arr:
             if x[0] == item_id: 
                 if len(x) < 3: ret = x[1]
-                else: ret += x[1]*(x[2]/100)
+                elif type_of_yield == "prob": ret += x[1]*(x[2]/100)
+                elif type_of_yield == "range": ret += (x[1]+x[2])/2
         return ret
     
     @staticmethod
@@ -140,19 +141,93 @@ class Storage_converter:
         df = df[df['Requirements']!='-']
         df = df[df['Rewards']!='-']
 
+        df['Id'] = df['Id'].astype('int32')
         df['Requirements'] = storage_array.series_converter(df['Requirements'])
-        df['EnergyCost'] = df['Requirements'].apply(lambda x:Storage_converter.get_item_avg_yield(x, exp_id))
+        df['EnergyCost'] = df['Requirements'].apply(lambda x:Storage_converter.get_item_avg_yield(x, energy_id))
         df['Rewards'] = storage_array.series_converter(df['Rewards'])
         df['Rewards'] = df['Rewards'].apply(lambda x: x.remove_first_col())
-        df['EnergyReward'] = df['Rewards'].apply(lambda x:Storage_converter.get_item_avg_yield(x, energy_id))
-        df['ExpReward'] = df['Rewards'].apply(lambda x:Storage_converter.get_item_avg_yield(x, exp_id))
+        df['EnergyReward'] = df['Rewards'].apply(lambda x:Storage_converter.get_item_avg_yield(x, energy_id, 'range'))
+        df['ExpReward'] = df['Rewards'].apply(lambda x:Storage_converter.get_item_avg_yield(x, exp_id, 'range'))
 
         df['Rewards'] = df['Rewards'].apply(lambda x:Storage_converter.remove_extra_items(x, [exp_id, energy_id]))
         df['ItemId'] = df['Rewards'].apply(lambda x: x.array[0][0])
-        df['ItemYield'] = df['Rewards'].apply(lambda x:Storage_converter.get_item_avg_yield(x, x.array[0][0]))
+        df['ItemYield'] = df['Rewards'].apply(lambda x:Storage_converter.get_item_avg_yield(x, int(x.array[0][0]), 'range'))
+
+        return df
+    
+    @staticmethod
+    def animals_storage_import(extractor:Extractor, worksheet = 'Animals', range = 'A2:AZ'):
+        df = extractor.extract_range(worksheet, range, True)
+        df = df[df['Id']!='']
+        temp = df['EN']
+        df = df.drop(['EN', 'EN'], axis=1)
+        df['EN'] = temp.iloc[:, 0]
+
+        df = df[['Id', 'EN', 'LevelRestriction', 'ProductionTime', 'Requirements', 'Rewards']]
+
+        df['Id'] = df['Id'].astype('int32')
+        df = df[df['LevelRestriction']!='-']
+        df = df[df['ProductionTime']!='-']
+        df = df[df['Requirements']!='-']
+        df = df[df['Rewards']!='-']
+
+        df['ProductionTime'] = df['ProductionTime'].astype('int32')
+        df['LevelRestriction'] = storage_array.series_converter(df['LevelRestriction'])
+        df['Requirements'] = storage_array.series_converter(df['Requirements'])
+        df['Rewards'] = storage_array.series_converter(df['Rewards'])
+
+        df['Food'] = df['Requirements'].apply(lambda x: int(x.array[0][0]))
+        df['FoodCount'] = df['Requirements'].apply(lambda x: int(x.array[0][1]))
+        df['ProductId'] = df['Rewards'].apply(lambda x: int(x.array[0][0]))
+        df['ProductYield'] = df['Rewards'].apply(lambda x:Storage_converter.get_item_avg_yield(x, int(x.array[0][0])))
+
+        return df
+    
+    @staticmethod
+    def seedbeds_storage_import(extractor:Extractor, worksheet = 'Seedbeds', range = 'A2:AZ'):
+        df = extractor.extract_range(worksheet, range, True)
+        df = df[df['Id']!='']
+        temp = df['EN']
+        df = df.drop(['EN', 'EN'], axis=1)
+        df['EN'] = temp.iloc[:, 0]
+
+        df = df[['Id', 'EN', 'LevelRestriction', 'RecipesIds']]
+
+        df['Id'] = df['Id'].astype('int32')
+        df = df[df['LevelRestriction']!='-']
+        df = df[df['RecipesIds']!='-']
+
+        df['LevelRestriction'] = storage_array.series_converter(df['LevelRestriction'])
+        df['RecipesIds'] = storage_array.series_converter(df['RecipesIds'])
+
+        return df
+    
+    @staticmethod
+    def trees_storage_import(extractor:Extractor, worksheet = 'Trees', range = 'A2:AZ'):
+        df = extractor.extract_range(worksheet, range, True)
+        df = df[df['Id']!='']
+        temp = df['EN']
+        df = df.drop(['EN', 'EN'], axis=1)
+        df['EN'] = temp.iloc[:, 0]
+
+        df = df[['Id', 'EN', 'LevelRestriction', 'GrowStagesCount', 'GrowStagesTimings', 'HarvestResult', 'GrowCyclesCount']]
+
+        df['Id'] = df['Id'].astype('int32')
+        df = df[df['LevelRestriction']!='-']
+        df = df[df['GrowStagesCount']!='-']
+        df = df[df['GrowStagesTimings']!='-']
+        df = df[df['HarvestResult']!='-']
+        df = df[df['GrowCyclesCount']!='-']
+
+        df['LevelRestriction'] = storage_array.series_converter(df['LevelRestriction'])
+        df['GrowStagesTimings'] = storage_array.series_converter(df['GrowStagesTimings'])
+        df['HarvestResult'] = storage_array.series_converter(df['HarvestResult'])
+
+        df['ProductId'] = df['HarvestResult'].apply(lambda x: int(x.array[0][0]))
+        df['ProductYield'] = df['HarvestResult'].apply(lambda x:Storage_converter.get_item_avg_yield(x, int(x.array[0][0])))
 
         return df
 
-df = Storage_converter.resMap_storage_import(storage_extractor)
+df = Storage_converter.trees_storage_import(storage_extractor)
 
 print(df.head())
