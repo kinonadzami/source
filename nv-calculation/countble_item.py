@@ -124,16 +124,16 @@ class Recipe:
                 
                 if self.prod_rec_validator(item.id): raise Exception("Circular dependency in recipe " + self.item.name)
             case Countble_item_source.Animals:
-                self.animals = requirements
+                self.recipe_req = requirements
                 #yield calc
             case Countble_item_source.Seedbeds:
-                self.seedbeds = requirements
+                self.recipe_req = requirements
                 #yield calc on level
             case Countble_item_source.Trees:
-                self.trees = requirements
+                self.recipe_req = requirements
                 #yield and calc
             case Countble_item_source.Generation:
-                self.generating_obj = requirements
+                self.recipe_req = requirements
                 #yield calc
         
         item.add_recipe(self)
@@ -159,9 +159,14 @@ class Recipe:
     def recipe_depth(self):
         if not self.source in [Countble_item_source.Production, Countble_item_source.Animals]: return 1
         max_depth = 0
-        for req in self.recipe_req:
-            depth = req.recipe.recipe_deep()
-            if max_depth < depth: max_deep = depth
+        if self.source == Countble_item_source.Production:
+            for req in self.recipe_req:
+                depth = req.counble_item.recipe.recipe_depth()
+                if max_depth < depth: max_deep = depth
+        if self.source == Countble_item_source.Animals:
+            for req in self.recipe_req:
+                depth = req.animal.food.recipe.recipe_depth()
+                if max_depth < depth: max_deep = depth    
         return max_depth + 1
     
     def calculate_req_total_time(self, level):
@@ -189,21 +194,21 @@ class Recipe:
                 return 0
             
             case Countble_item_source.Seedbeds:
-                return int(float(self.time)/float(self.r_yeild*self.seedbeds[level-1]))
+                return int(float(self.time)/float(self.r_yeild*self.recipe_req[level-1]))
             
             case Countble_item_source.Trees:
-                time = self.trees[level-1].tree.grow_time + (self.trees[level-1].tree.gather_time * self.trees[level-1].tree.gather_cycles)
-                t_yield = self.trees[level-1].tree.r_yield * self.trees[level-1].tree.gather_cycles * self.trees[level-1].count
+                time = self.recipe_req[level-1].tree.grow_time + (self.recipe_req[level-1].tree.gather_time * self.recipe_req[level-1].tree.gather_cycles)
+                t_yield = self.recipe_req[level-1].tree.r_yield * self.recipe_req[level-1].tree.gather_cycles * self.recipe_req[level-1].count
                 return int(float(time)/float(t_yield))      
                  
             case Countble_item_source.Generation:
                 avg_yield = 0
-                for gen in self.generating_obj:
+                for gen in self.recipe_req:
                     avg_yield += float(gen.r_yeild)/float(gen.time)
                 return int(1/avg_yield)             
                
             case Countble_item_source.Animals:
-                return int(float(self.time)/float(self.r_yeild*self.animals[level-1].count))
+                return int(float(self.time)/float(self.r_yeild*self.recipe_req[level-1].count))
             
             case Countble_item_source.Production:
                 return int(float(self.time)/float(self.r_yeild))

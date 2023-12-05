@@ -53,6 +53,7 @@ class storage_data:
                         reqs.append(Requirement(ci_df['item'][reqId], int(x[1])))
 
                 if len(reqs) > 0:
+                    ci_df['item'][itemId].source = Countble_item_source.Production
                     t = Recipe(ci_df['item'][itemId], reqs, prod_recipes['ProductionTime'][ind], prod_recipes['ProductYield'][ind], int(prod_recipes['UnlockLevel'][ind]), Recipe_rarity(int(prod_recipes['ExpReward'][ind])))
                     df = pd.concat([df, pd.DataFrame([t], index=[itemId], columns=['recipe'])])
 
@@ -67,6 +68,7 @@ class storage_data:
         for ind in prod_sources.index:
             itemId = int(prod_sources['ItemId'][ind])
             if itemId in ci_df.index: 
+                ci_df['item'][itemId].source = Countble_item_source.Enviroment
                 t = Resource_obj(prod_sources['Id'][ind], prod_sources['EN'][ind], int(prod_sources['EnergyCost'][ind]), int(prod_sources['EnergyReward'][ind]), ci_df['item'][itemId], int(prod_sources['ItemYield'][ind]), int(prod_sources['ExpReward'][ind]))
                 df = pd.concat([df, pd.DataFrame([t], index=[itemId], columns=['obj'])])
 
