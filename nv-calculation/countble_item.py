@@ -15,6 +15,12 @@ class Countble_item(Item):
 
     def add_recipe(self, recipe):
         self.recipe = recipe
+        if recipe.source == Countble_item_source.Animals:
+            self.source = Countble_item_source.Animals
+        elif recipe.source == Countble_item_source.Generation:
+            self.source = Countble_item_source.Generation
+        elif recipe.source == Countble_item_source.Trees:
+            self.source = Countble_item_source.Trees
         return self
     
     def add_env_resource(self, source:Resource_obj):

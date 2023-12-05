@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from export_data import Extractor, storage_extractor
 from global_p import exp_id, energy_id
+from enums import Countble_item_source
 
 class storage_array:
 
@@ -80,9 +81,34 @@ class Storage_converter:
     def resource_storage_import(extractor:Extractor, worksheet = 'ResourcesItems', range = 'A2:B'):
         df = extractor.extract_range(worksheet, range, True)
         df['Id'] = df['Id'].astype('int32')
+        df['type'] = Countble_item_source.Enviroment
+
+        return df
+    
+    @staticmethod
+    def materials_storage_import(extractor:Extractor, worksheet = 'MaterialsItems', range = 'A2:B'):
+        df = extractor.extract_range(worksheet, range, True)
+        df['Id'] = df['Id'].astype('int32')
+        df['type'] = Countble_item_source.Production
+
+        return df
+    
+    @staticmethod
+    def crops_storage_import(extractor:Extractor, worksheet = 'CropsItems', range = 'A2:B'):
+        df = extractor.extract_range(worksheet, range, True)
+        df['Id'] = df['Id'].astype('int32')
+        df['type'] = Countble_item_source.Seedbeds
+
+        return df
+    
+    @staticmethod
+    def products_storage_import(extractor:Extractor, worksheet = 'ProductsItems', range = 'A2:B'):
+        df = extractor.extract_range(worksheet, range, True)
+        df['Id'] = df['Id'].astype('int32')
+        df['type'] = Countble_item_source.Production
 
         return df
 
-df = Storage_converter.resource_storage_import(storage_extractor)
+df = Storage_converter.products_storage_import(storage_extractor)
 
 print(df.head())
