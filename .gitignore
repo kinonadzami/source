@@ -11,3 +11,4 @@ nv-calculation/__pycache__/enums.cpython-311.pyc
 WeCan-dbclient/.env
 WeCan-dbclient/__pycache__/mongo_client.cpython-311.pyc
 WeCan-dbclient/users.csv
+WeCan-dbclient/sessions.csv
