@@ -28,7 +28,7 @@ pipeline_users = [
         '$group': {
             '_id': '$user_id', 
             'first_datetime': {
-                '$max': '$date'
+                '$min': '$date'
             }
         }
     }
@@ -52,6 +52,7 @@ if not users_new.empty:
 try:
     sessions = pd.read_csv("sessions.csv").set_index("_id")
     max_date = sessions.max()["date"]
+    max_date = datetime.datetime.strptime(max_date, '%Y-%m-%d %H:%M:%S.%f')
     max_date = max_date - datetime.timedelta(days=2)
 
 except FileNotFoundError: 
