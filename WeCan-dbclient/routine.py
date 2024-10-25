@@ -200,8 +200,6 @@ def sessions_update(file_name="sessions.csv", table_name="journal"):
     mongo_client.shutdown_db_client()
 
 
-users_update()
-sessions_update()
 
 
 
